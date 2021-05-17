@@ -21,6 +21,9 @@ import net.daum.mf.map.api.MapPolyline;
 import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MapActivity extends AppCompatActivity {
     
     private double[] arr1 = new double[1000]; // 위도 좌표 저장배열
@@ -70,27 +73,51 @@ public class MapActivity extends AppCompatActivity {
         
         MapReverseGeoCoder reverseGeoCoder = new MapReverseGeoCoder("66c4132dcc0995b63499b6d92b0b908a", mapPoint, reverseGeoCodingResultListener, mapActivity); 
         reverseGeoCoder.startFindingAddress(); //각각 APP키, 지도 중심, 이벤트리스너, 사용하는 액티비티 페이지
+                              
+        Button button3 = (Button)findViewById(R.id.button3); //산책버튼
+                              
+        button3.setOnClickListener(new View.OnClickListener() { //산책버튼 누르면 1분마다 위도, 경도 저장후 라인으로 나타냄, 한번 더 누르면 종료
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(),"산책을 시작합니다.",Toast.LENGTH_SHORT).show();
+                Timer timer = new Timer(); //타이머 클래스 : 자식 스레드 생성후 특정행동 반복
 
-        // reverseGeoCodingResultListener
-        @Override
-        public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String addressString) { // 주소를 찾은 경우.
-            gpstracker = new GpsTracker(MapActivity.this);
-            double latitude = gpstracker.getLatitude(); //위도 구하기
-            double longitude = gpstracker.getLongitude(); //경도 구하기
-            arr1[a] = latitude;
-            arr2[a] = longitude;
-            a = a + 1;
-        } //위치정보를 전송하면 각각의 배열에 위도, 경도값이 차례대로 저장됨
+                TimerTask TT = new TimerTask() { //타이머 클래스를 사용하기 위한 객체 생성기
+                    @Override
+                    public void run() { //해당 구문 반복
+                        // reverseGeoCodingResultListener
+                        @Override
+                        public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String addressString) { // 주소를 찾은 경우.
+                            gpstracker = new GpsTracker(MapActivity.this);
+                            double latitude = gpstracker.getLatitude(); //위도 구하기
+                            double longitude = gpstracker.getLongitude(); //경도 구하기
+                            arr1[a] = latitude;
+                            arr2[a] = longitude;
+                            a = a + 1;
+                        } //위치정보를 전송하면 각각의 배열에 위도, 경도값이 차례대로 저장됨
 
-        @Override
-        public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) { // 호출에 실패한 경우.
-            Toast.makeText(getApplicationContext(),"주소를 찾을 수 없습니다.",Toast.LENGTH_SHORT).show();
-        }
+                        @Override
+                        public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) { // 호출에 실패한 경우.
+                            Toast.makeText(getApplicationContext(),"주소를 찾을 수 없습니다.",Toast.LENGTH_SHORT).show();
+                        }
         
-        for(int b = 0; b <= a; b++) {
-            polyline.addPoint(MapPoint.mapPointWithGeoCoord(Arrays.toString(arr1.get(b)), Arrays.toString(arr2.get(b)));
-        } // 찾은 주소의 위도 경도값을 배열에 넣은뒤 선으로 하나씩 연결
+                        for(int b = 0; b <= a; b++) {
+                            polyline.addPoint(MapPoint.mapPointWithGeoCoord(Arrays.toString(arr1.get(b)), Arrays.toString(arr2.get(b)));
+                        } // 찾은 주소의 위도 경도값을 배열에 넣은뒤 선으로 하나씩 연결
         
-        mapView.addPolyline(polyline); //연결한 선을 지도에 표시
+                        mapView.addPolyline(polyline); //연결한 선을 지도에 표시
+                    }
+                };
+
+                timer.schedule(TT, 0, 60000); //수행할 작업, 딜레이, 반복 시간(60초)
+                button3.setOnClickListener(new View.OnClickListener() { //두번째 누른 산책버튼
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getApplicationContext(),"산책을 종료합니다.",Toast.LENGTH_SHORT).show();
+                        timer.cancel(); //타이머 종료
+                    }
+                }
+            }
+        });
     }
 }
