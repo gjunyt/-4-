@@ -122,12 +122,12 @@ public class MapActivity extends AppCompatActivity {
                 CSVReader rd1 = new CSVReader(new FileReader(csvfile.getAbsolutePath()));
                 String[] nextLine;
                 while ((nextLine = reader.readNext()) != null) { //해당 csv파일을 전부 읽어올 때까지 반복
-                    double[] li1 = new double[100]; //위도 경도값을 넣기 위한 배열
+                    double[] li1 = new double[1000]; //위도 경도값을 넣기 위한 배열
                     try {
                         double d1 = Arrays.toString(nextLine[위도]);
                         double d2 = Arrays.toString(nextLine[경도]);
                         
-                        li1 = geocoder.getLocation(d1, d2, 100); //위도, 경도, 받아들일 값의 개수
+                        li1 = geocoder.getLocation(d1, d2, 1000); //위도, 경도, 받아들일 값의 개수
                     } catch (IOException e) { //읽어오기를 실패했을 때
                         e.printStackTrace();
                         Toast.makeText(this."값을 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
